@@ -1,7 +1,18 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
-import './Tab3.css';
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/react";
+import {
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+} from "@ionic/react";
+import "./Tab3.css";
 
 const Tab3: React.FC = () => {
   return (
@@ -18,13 +29,19 @@ const Tab3: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <IonCard>
-          <img alt="Isaac Garrido" src="https://img.freepik.com/vector-premium/ilustracion-avatar-estudiante-icono-perfil-usuario-avatar-jovenes_118339-4402.jpg" />
+          <img
+            alt="Isaac Garrido"
+            src="https://img.freepik.com/vector-premium/ilustracion-avatar-estudiante-icono-perfil-usuario-avatar-jovenes_118339-4402.jpg"
+          />
           <IonCardHeader>
             <IonCardTitle>Isaac Garrido Nazareno</IonCardTitle>
             <IonCardSubtitle>Isaac.Garrido@uisek.edu.ec</IonCardSubtitle>
           </IonCardHeader>
 
-          <IonCardContent>hola soy Isaac Garrido Y soy un Estudiante de Ingenieria en software.</IonCardContent>
+          <IonCardContent>
+            hola soy Isaac Garrido Y soy un Estudiante de Ingenieria en
+            software y este es mi perfil.
+          </IonCardContent>
         </IonCard>
       </IonContent>
     </IonPage>
