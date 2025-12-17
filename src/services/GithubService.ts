@@ -13,7 +13,8 @@ export const fetchRepositories = async (): Promise<RepositoryItem[]> => {
             params: {
                 per_page: 100,
                 sort: "created",
-                direction: "desc"
+                direction: "desc",
+                affiliation:"owner"
             }
         });
 
