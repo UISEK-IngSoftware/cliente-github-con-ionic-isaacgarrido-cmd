@@ -11,7 +11,9 @@ const Tab1: React.FC = () => {
 
   useEffect(() => {
     const loadRepos = async () => {
+      console.log("Loading repositories...");
       const fetchedRepos = await fetchRepositories();
+      console.log("Fetched repos:", fetchedRepos.length);
       setRepos(fetchedRepos);
     };
     loadRepos();
