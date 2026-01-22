@@ -9,53 +9,80 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import "./Tab2.css";
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
+import { useState, useEffect } from 'react';
 import { RepositoryItem } from "../interfaces/Repositoryitem";
-import { createRepository } from "../services/GithubService";
+import { createRepository, updateRepository } from "../services/GithubService";
 
 const Tab2: React.FC = () => {
   const history = useHistory();
-
-  const repoFormData : RepositoryItem = {
+  const location = useLocation<{ repo?: RepositoryItem }>();
+  const [repoFormData, setRepoFormData] = useState<RepositoryItem>({
     name: '',
     description: '',
     imageUrl: null,
     owner: null,
     language: null,
-  }
-
-const setRepoName = (value: string) => {
-  repoFormData. name = value;
-}
-
-const setDescription = (value: string) => {
-  repoFormData. description = value;
-}
-
-const saveRepo = () =>{
-  console. log('Guardando repositorio:', repoFormData);
-  if (repoFormData.name. trim() === '') {
-    alert('El nombre del repositorio es obligatorio');
-    return;
-  }
-  createRepository(repoFormData).then(() =>{
-    history.push('/tab1')
-  }).catch((error) => {
-    console.error('Error al crear el repositorio: ', error);
-    alert('Error al crear el repositorio');
   });
-};
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.repo) {
+      setRepoFormData(location.state.repo);
+      setIsEditing(true);
+    }
+  }, [location.state]);
+
+  const setRepoName = (value: string) => {
+    setRepoFormData(prev => ({ ...prev, name: value }));
+  };
+
+  const setDescription = (value: string) => {
+    setRepoFormData(prev => ({ ...prev, description: value }));
+  };
+
+  const saveRepo = async () => {
+    console.log('Guardando repositorio:', repoFormData);
+    if (repoFormData.name.trim() === '') {
+      alert('El nombre del repositorio es obligatorio');
+      return;
+    }
+    try {
+      if (isEditing && repoFormData.owner) {
+        await updateRepository(repoFormData.owner, repoFormData.name, {
+          name: repoFormData.name,
+          description: repoFormData.description,
+        });
+      } else {
+        const createdRepo = await createRepository(repoFormData);
+        localStorage.setItem('createdRepo', JSON.stringify(createdRepo));
+      }
+      history.push('/tab1');
+    } catch (error: unknown) {
+      console.error('Error al guardar el repositorio: ', error);
+      if (error instanceof Error && 'response' in error) {
+        const axiosError = error as { response: { data: { message: string } } };
+        if (axiosError.response && axiosError.response.data && axiosError.response.data.message) {
+          alert(`Error al guardar el repositorio: ${axiosError.response.data.message}`);
+        } else {
+          alert('Error al guardar el repositorio');
+        }
+      } else {
+        alert('Error al guardar el repositorio');
+      }
+    }
+  };
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Formulario de repositorio</IonTitle>
+          <IonTitle>{isEditing ? 'Editar repositorio' : 'Formulario de repositorio'}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Formulario de repositorio</IonTitle>
+            <IonTitle size="large">{isEditing ? 'Editar repositorio' : 'Formulario de repositorio'}</IonTitle>
           </IonToolbar>
         </IonHeader>
 
@@ -67,6 +94,7 @@ const saveRepo = () =>{
             placeholder="Enter text"
             value={repoFormData.name}
             onIonChange={e => setRepoName(e.detail.value!)}
+            disabled={isEditing} // Can't change name when editing
           ></IonInput>
 
           <IonTextarea
@@ -74,12 +102,14 @@ const saveRepo = () =>{
             labelPlacement="floating"
             fill="outline"
             placeholder="Esto es un repositorio de ejemplo"
-            value={repoFormData.description}
+            value={repoFormData.description || ''}
             onIonChange={e => setDescription(e.detail.value!)}
             className="form-field"
             rows={6}
           ></IonTextarea>
-          <IonButton expand="block" className="form-field" onClick={saveRepo}>Guardar</IonButton>
+          <IonButton expand="block" className="form-field" onClick={saveRepo}>
+            {isEditing ? 'Actualizar' : 'Guardar'}
+          </IonButton>
         </div>
       </IonContent>
     </IonPage>

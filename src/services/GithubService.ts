@@ -37,7 +37,7 @@ export const fetchRepositories = async (): Promise<RepositoryItem[]> => {
 
     console.log("API Response:", response.data);
 
-    const repositories: RepositoryItem[] = response.data.map((repo: any) => ({
+    const repositories: RepositoryItem[] = response.data.map((repo: { name: string; owner?: { login: string; avatar_url: string }; description?: string; language?: string }) => ({
       name: repo.name,
       owner: repo.owner ? repo.owner.login : null,
       description: repo.description ? repo.description : null,
@@ -52,12 +52,21 @@ export const fetchRepositories = async (): Promise<RepositoryItem[]> => {
   }
 };
 
-export const createRepository = async (repo: RepositoryItem): Promise<void> => {
+export const createRepository = async (repo: RepositoryItem): Promise<RepositoryItem> => {
   try {
     const response = await githubApi.post(`/user/repos`, repo);
     console.log("Repository creado:", response.data);
+    const createdRepo: RepositoryItem = {
+      name: response.data.name,
+      owner: response.data.owner ? response.data.owner.login : null,
+      description: response.data.description ? response.data.description : null,
+      imageUrl: response.data.owner ? response.data.owner.avatar_url : null,
+      language: response.data.language ? response.data.language : null,
+    };
+    return createdRepo;
   } catch (error) {
     console.error("Error creando repository:", error);
+    throw error;
   }
 };
 
@@ -68,5 +77,25 @@ export const getUserInfo = async (): Promise<UserInfo | null> => {
   } catch (error) {
     console.error("Error fetching user info:", error);
     return null;
+  }
+};
+
+export const updateRepository = async (owner: string, repo: string, data: Partial<RepositoryItem>): Promise<void> => {
+  try {
+    const response = await githubApi.patch(`/repos/${owner}/${repo}`, data);
+    console.log("Repository updated:", response.data);
+  } catch (error) {
+    console.error("Error updating repository:", error);
+    throw error;
+  }
+};
+
+export const deleteRepository = async (owner: string, repo: string): Promise<void> => {
+  try {
+    await githubApi.delete(`/repos/${owner}/${repo}`);
+    console.log("Repository deleted");
+  } catch (error) {
+    console.error("Error deleting repository:", error);
+    throw error;
   }
 };
