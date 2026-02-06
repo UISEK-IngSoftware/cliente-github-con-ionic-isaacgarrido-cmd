@@ -1,10 +1,11 @@
-import { IonContent, IonHeader, IonList, IonPage, IonTitle, IonToolbar, IonLoading, IonAlert, useIonViewDidEnter } from '@ionic/react';
+import { IonContent, IonHeader, IonList, IonPage, IonTitle, IonToolbar, IonAlert, useIonViewDidEnter } from '@ionic/react';
 import { useState } from 'react';
 
 import './Tab1.css';
 import Repoitem from '../components/Repoitem';
 import { fetchRepositories, deleteRepository } from '../services/GithubService';
 import { RepositoryItem } from '../interfaces/Repositoryitem';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Tab1: React.FC = () => {
   const [repos, setRepos] = useState<RepositoryItem[]>([]);
@@ -17,7 +18,7 @@ const Tab1: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const fetchedRepos = await fetchRepositories();
+        const fetchedRepos = await fetchRepositories();
       const savedRepo = localStorage.getItem('createdRepo');
       if (savedRepo) {
         const parsedRepo = JSON.parse(savedRepo);
@@ -70,7 +71,6 @@ const Tab1: React.FC = () => {
             <IonTitle size="large">Repositorios</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <IonLoading isOpen={loading} message="Loading repositories..." />
         <IonAlert
           isOpen={showDeleteAlert}
           onDidDismiss={() => setShowDeleteAlert(false)}
@@ -94,6 +94,7 @@ const Tab1: React.FC = () => {
             <Repoitem key={index} repo={repo} onDelete={handleDelete} />
           ))}
         </IonList>
+        <LoadingSpinner isOpen={loading} />
       </IonContent>
     </IonPage>
   );

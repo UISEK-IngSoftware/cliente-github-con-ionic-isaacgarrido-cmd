@@ -13,6 +13,7 @@ import { useHistory, useLocation } from 'react-router';
 import { useState, useEffect } from 'react';
 import { RepositoryItem } from "../interfaces/Repositoryitem";
 import { createRepository, updateRepository } from "../services/GithubService";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Tab2: React.FC = () => {
   const history = useHistory();
@@ -25,6 +26,7 @@ const Tab2: React.FC = () => {
     language: null,
   });
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (location.state?.repo) {
@@ -47,6 +49,7 @@ const Tab2: React.FC = () => {
       alert('El nombre del repositorio es obligatorio');
       return;
     }
+    setLoading(true);
     try {
       if (isEditing && repoFormData.owner) {
         await updateRepository(repoFormData.owner, repoFormData.name, {
@@ -70,6 +73,8 @@ const Tab2: React.FC = () => {
       } else {
         alert('Error al guardar el repositorio');
       }
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -111,6 +116,7 @@ const Tab2: React.FC = () => {
             {isEditing ? 'Actualizar' : 'Guardar'}
           </IonButton>
         </div>
+        <LoadingSpinner isOpen={loading} />
       </IonContent>
     </IonPage>
   );

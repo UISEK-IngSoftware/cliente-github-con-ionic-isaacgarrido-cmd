@@ -21,6 +21,7 @@ import { getUserInfo } from "../services/GithubService";
 import { useHistory } from "react-router-dom";
 import AuthService from "../services/AuthService";
 import { logOutOutline } from "ionicons/icons";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Tab3: React.FC = () => {
   const history = useHistory();
@@ -30,6 +31,7 @@ const Tab3: React.FC = () => {
     bio: 'No se puede cargar la biografía',
     avatar_url: 'https://ionicframework.com/docs/img/demos/card-media.png'
   });
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = () => {
     AuthService.logout();
@@ -37,14 +39,21 @@ const Tab3: React.FC = () => {
   };
 
   const loadUserInfo = async () => {
-    const response = await getUserInfo();
-    if (response) {
-      setUserInfo({
-        name: response. name,
-        username: response. login,
-        bio: response.bio,
-        avatar_url: response. avatar_url,
-      });
+    setLoading(true);
+    try {
+      const response = await getUserInfo();
+      if (response) {
+        setUserInfo({
+          name: response. name,
+          username: response. login,
+          bio: response.bio,
+          avatar_url: response. avatar_url,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading user info:', error);
+    } finally {
+      setLoading(false);
     }
   }
   
@@ -79,10 +88,11 @@ const Tab3: React.FC = () => {
              {userInfo.bio}
            </IonCardContent>
          </IonCard>
-         <IonButton className="logout-button" expand="block" color="danger" onClick={handleLogout} >
-          <IonIcon slot="start" icon={logOutOutline}/>
-           Cerrar Sesión
-         </IonButton>
+          <IonButton className="logout-button" expand="block" color="danger" onClick={handleLogout} >
+           <IonIcon slot="start" icon={logOutOutline}/>
+            Cerrar Sesión
+          </IonButton>
+          <LoadingSpinner isOpen={loading} />
        </IonContent>
     </IonPage>
   );
